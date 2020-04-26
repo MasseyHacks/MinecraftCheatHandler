@@ -1,0 +1,5 @@
+name: MinecraftCheatHandler
+version: 1.0.0
+author: James Xu
+main: ca.masseyhacks.minecraftcheathandler.MinecraftCheatHandler
+api-version: '1.15'
