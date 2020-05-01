@@ -3,7 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/MinecraftCheatHandler_jar</output-path>
     <root id="archive" name="MinecraftCheatHandler.jar">
       <element id="module-output" name="MinecraftCheatHandler" />
-      <element id="extracted-dir" path="$USER_HOME$/Downloads/WitherAC_API.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/WitherAC_API.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/3.6.1/protobuf-java-3.6.1.jar" path-in-jar="/" />
       <element id="library" level="application" name="Python 3.7 interpreter library" />
     </root>

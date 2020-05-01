@@ -47,6 +47,13 @@
             <artifactId>firebase-admin</artifactId>
             <version>6.12.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.gmail.olexorus</groupId>
+            <artifactId>witherac</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/WitherAC_API.jar</systemPath>
+        </dependency>
     </dependencies>
 
 </project>
