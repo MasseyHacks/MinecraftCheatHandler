@@ -18,6 +18,15 @@
                 </configuration>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>minecraft-cheat-handler-firebase-adminsdk-v1xqd-8559bb0f17.json</include>
+                    <include>plugin.yml</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
     <repositories>
         <repository>
@@ -34,9 +43,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.19</version>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>6.12.2</version>
         </dependency>
     </dependencies>
 
