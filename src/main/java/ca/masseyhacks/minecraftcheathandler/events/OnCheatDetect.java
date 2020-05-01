@@ -12,10 +12,8 @@ import com.google.firebase.cloud.FirestoreClient;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import redis.clients.jedis.Jedis;
 
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,14 +40,24 @@ public class OnCheatDetect implements Listener {
     private void recordCheatIncident(Player cheatedPlayer, CheckType checkType) {
         UUID playerUUID = cheatedPlayer.getUniqueId();
         UUID cheatUUID = UUID.randomUUID();
-        String cheat = checkType.getCheckName();
+        String cheat = checkType.getCheckDescription();
         Firestore db = FirestoreClient.getFirestore();
+        long time = Instant.now().getEpochSecond();
         DocumentReference docRef = db.collection("cheat-incidents").document(cheatUUID.toString());
         Map<String, Object> data = new HashMap<>();
         data.put("playerUUID", playerUUID.toString());
         data.put("cheat", cheat);
-        data.put("timestamp", Instant.now().getEpochSecond());
+        data.put("timestamp", time);
         //asynchronously write data
         ApiFuture<WriteResult> result = docRef.set(data);
+        //Redis
+        Jedis jedis = plugin.jedis;
+        jedis.zadd(playerUUID.toString(), time + 30 * 60, cheatUUID.toString());
+
+        Map<String, String> hash = new HashMap<>();
+        hash.put("cheat", cheat);
+        hash.put("timestamp", (Long.toString(time)));
+        jedis.hset(cheatUUID.toString(), hash);
     }
+
 }
