@@ -10,6 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 
 public class MinecraftCheatHandler extends JavaPlugin {
@@ -19,8 +20,7 @@ public class MinecraftCheatHandler extends JavaPlugin {
         //Fired when the server enables the plugin
         FileConfiguration config = this.getConfig();
         try {
-            FileInputStream serviceAccount =
-                    new FileInputStream("minecraft-cheat-handler-firebase-adminsdk-v1xqd-8559bb0f17.json");
+            FileInputStream serviceAccount = new FileInputStream(Paths.get(getDataFolder().getPath(), "minecraft-cheat-handler-firebase-adminsdk-v1xqd-8559bb0f17.json").toString());
 
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
