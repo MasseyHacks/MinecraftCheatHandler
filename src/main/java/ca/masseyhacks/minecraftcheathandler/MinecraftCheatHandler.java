@@ -29,7 +29,7 @@ public class MinecraftCheatHandler extends JavaPlugin {
     }
 
     @Override
-    public void onEnable(){
+    public void onEnable() {
         loadConfiguration();
         //Fired when the server enables the plugin
         FileConfiguration config = this.getConfig();
@@ -49,7 +49,7 @@ public class MinecraftCheatHandler extends JavaPlugin {
             getLogger().info("Firebase Initialized");
 
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE,"Failed to initialize Firebase");
+            getLogger().log(Level.SEVERE, "Failed to initialize Firebase");
 
             e.printStackTrace();
             return;

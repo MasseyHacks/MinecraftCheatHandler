@@ -30,6 +30,7 @@ public class OnCheatDetect implements Listener {
     public void onCheatDetect(ViolationEvent violationEvent) {
         Player player = violationEvent.getPlayer();
         CheckType cheatType = violationEvent.getType();
+
         try {
             recordCheatIncident(player, cheatType);
         } catch (Exception e) {
@@ -52,12 +53,12 @@ public class OnCheatDetect implements Listener {
         ApiFuture<WriteResult> result = docRef.set(data);
         //Redis
         Jedis jedis = plugin.jedis;
-        jedis.zadd(playerUUID.toString(), time + 30 * 60, cheatUUID.toString());
+        jedis.zadd("cheat-player:" + playerUUID.toString(), time + 30 * 60, cheatUUID.toString());
 
         Map<String, String> hash = new HashMap<>();
         hash.put("cheat", cheat);
         hash.put("timestamp", (Long.toString(time)));
-        jedis.hset(cheatUUID.toString(), hash);
+        jedis.hset("cheat-incident:" + cheatUUID.toString(), hash);
     }
 
 }
