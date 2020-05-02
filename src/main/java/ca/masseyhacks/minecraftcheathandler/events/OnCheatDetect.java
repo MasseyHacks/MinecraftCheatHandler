@@ -47,6 +47,7 @@ public class OnCheatDetect implements Listener {
         DocumentReference docRef = db.collection("cheat-incidents").document(cheatUUID.toString());
         Map<String, Object> data = new HashMap<>();
         data.put("playerUUID", playerUUID.toString());
+        data.put("playerName", cheatedPlayer.getDisplayName());
         data.put("cheat", cheat);
         data.put("timestamp", time);
         //asynchronously write data
