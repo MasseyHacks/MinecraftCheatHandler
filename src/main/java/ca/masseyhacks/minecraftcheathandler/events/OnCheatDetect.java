@@ -60,7 +60,7 @@ public class OnCheatDetect implements Listener {
         hash.put("cheat", cheat);
         hash.put("timestamp", (Long.toString(time)));
         jedis.hset("cheat-incident:" + cheatUUID.toString(), hash);
-        jedis.expire("cheat-incident:" + cheatUUID.toString(), 45 * 60);
+        jedis.expire("cheat-incident:" + cheatUUID.toString(), plugin.getConfig().getInt("redisExpireTime"));
     }
 
 }

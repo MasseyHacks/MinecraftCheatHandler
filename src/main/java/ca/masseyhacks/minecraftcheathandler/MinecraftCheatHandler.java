@@ -9,10 +9,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import redis.clients.jedis.Jedis;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Paths;
-import java.util.Objects;
 import java.util.logging.Level;
 
 public class MinecraftCheatHandler extends JavaPlugin {
@@ -24,6 +22,7 @@ public class MinecraftCheatHandler extends JavaPlugin {
         getConfig().addDefault("Services.Redis.Port", 6379);
         getConfig().addDefault("Services.Redis.Password", "");
         getConfig().addDefault("Services.Firebase.KeyFileName", "minecraft-cheat-events-firebase-adminsdk-12tn7-aab6408a82.json");
+        getConfig().addDefault("redisExpireTime", 2700); // REDIS record expire in seconds
         getConfig().options().copyDefaults(true);
         saveConfig();
     }
@@ -34,7 +33,8 @@ public class MinecraftCheatHandler extends JavaPlugin {
         //Fired when the server enables the plugin
         FileConfiguration config = this.getConfig();
         jedis = new Jedis(config.getString("Services.Redis.Host"), config.getInt("Services.Redis.Port"));
-        if (Objects.requireNonNull(getConfig().getString("Services.Redis.Password")).length() != 0) {
+        //noinspection ConstantConditions
+        if (getConfig().getString("Services.Redis.Password").length() != 0) {
             jedis.auth(getConfig().getString("Services.Redis.Password"));
         }
         try {
