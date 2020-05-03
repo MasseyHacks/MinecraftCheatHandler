@@ -8,6 +8,9 @@ import org.bukkit.block.data.type.Fire;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Protocol;
 
 import java.io.FileInputStream;
 import java.nio.file.Paths;
@@ -15,7 +18,7 @@ import java.util.logging.Level;
 
 public class MinecraftCheatHandler extends JavaPlugin {
 
-    public Jedis jedis;
+    public JedisPool jedisPool;
 
     private void loadConfiguration() {
         getConfig().addDefault("Services.Redis.Host", "localhost");
@@ -32,11 +35,10 @@ public class MinecraftCheatHandler extends JavaPlugin {
         loadConfiguration();
         //Fired when the server enables the plugin
         FileConfiguration config = this.getConfig();
-        jedis = new Jedis(config.getString("Services.Redis.Host"), config.getInt("Services.Redis.Port"));
-        //noinspection ConstantConditions
-        if (getConfig().getString("Services.Redis.Password").length() != 0) {
-            jedis.auth(getConfig().getString("Services.Redis.Password"));
-        }
+
+        connectToRedis(config);
+        getLogger().info("Redis Connection Established");
+
         try {
             FileInputStream serviceAccount = new FileInputStream(Paths.get(getDataFolder().getPath(), config.getString("Services.Firebase.KeyFileName")).toString());
 
@@ -59,5 +61,22 @@ public class MinecraftCheatHandler extends JavaPlugin {
 
         getLogger().info("Registering event handlers.");
         getServer().getPluginManager().registerEvents(new OnCheatDetect(this), this);
+    }
+
+    public void connectToRedis(FileConfiguration config) {
+        String password = getConfig().getString("Services.Redis.Password");
+        String host = config.getString("Services.Redis.Host");
+        int port = config.getInt("Services.Redis.Port");
+        //noinspection ConstantConditions
+        if (password.length() == 0) {
+            jedisPool = new JedisPool(new JedisPoolConfig(), host , port);
+            return;
+        }
+        jedisPool = new JedisPool(new JedisPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT, password);
+    }
+
+    @Override
+    public void onDisable() {
+       jedisPool.close();
     }
 }

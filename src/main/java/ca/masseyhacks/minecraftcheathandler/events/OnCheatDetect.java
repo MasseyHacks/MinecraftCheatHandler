@@ -9,15 +9,19 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.cloud.FirestoreClient;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.exceptions.JedisException;
 
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class OnCheatDetect implements Listener {
     private final MinecraftCheatHandler plugin;
@@ -42,25 +46,46 @@ public class OnCheatDetect implements Listener {
         UUID playerUUID = cheatedPlayer.getUniqueId();
         UUID cheatUUID = UUID.randomUUID();
         String cheat = checkType.getCheckDescription();
-        Firestore db = FirestoreClient.getFirestore();
         long time = Instant.now().getEpochSecond();
+
+        recordToFirestore(playerUUID, cheatedPlayer.getDisplayName(), cheatUUID, cheat, time);
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                Jedis jedis = plugin.jedisPool.getResource();
+                recordToRedis(jedis, playerUUID, cheatUUID, cheat, time);
+            } catch (JedisConnectionException e) {
+                plugin.connectToRedis(plugin.getConfig());
+                Jedis jedis = plugin.jedisPool.getResource();
+                recordToRedis(jedis, playerUUID, cheatUUID, cheat, time);
+            }
+        });
+
+    }
+
+    private void recordToFirestore(UUID playerUUID, String playerName, UUID cheatUUID, String cheat, long time) {
+        Firestore db = FirestoreClient.getFirestore();
         DocumentReference docRef = db.collection("cheat-incidents").document(cheatUUID.toString());
         Map<String, Object> data = new HashMap<>();
         data.put("playerUUID", playerUUID.toString());
-        data.put("playerName", cheatedPlayer.getDisplayName());
+        data.put("playerName", playerName);
         data.put("cheat", cheat);
         data.put("timestamp", time);
         //asynchronously write data
         ApiFuture<WriteResult> result = docRef.set(data);
-        //Redis
-        Jedis jedis = plugin.jedis;
+
+    }
+
+    private void recordToRedis(Jedis jedis, UUID playerUUID, UUID cheatUUID, String cheat, long time) {
+
         jedis.zadd("cheat-player:" + playerUUID.toString(), time + 30 * 60, cheatUUID.toString());
 
         Map<String, String> hash = new HashMap<>();
         hash.put("cheat", cheat);
         hash.put("timestamp", (Long.toString(time)));
+
         jedis.hset("cheat-incident:" + cheatUUID.toString(), hash);
         jedis.expire("cheat-incident:" + cheatUUID.toString(), plugin.getConfig().getInt("redisExpireTime"));
+        jedis.close();
     }
 
 }
