@@ -82,6 +82,8 @@ public class OnCheatDetect implements Listener {
         Map<String, String> hash = new HashMap<>();
         hash.put("cheat", cheat);
         hash.put("timestamp", (Long.toString(time)));
+        hash.put("player", "cheat-player:" + playerUUID.toString());
+        hash.put("id", "cheat-incident:" + cheatUUID.toString());
 
         jedis.hset("cheat-incident:" + cheatUUID.toString(), hash);
         jedis.expire("cheat-incident:" + cheatUUID.toString(), plugin.getConfig().getInt("redisExpireTime"));
